@@ -17,16 +17,16 @@ export type Filters<Q extends any> = {
 
 
 export interface Props<D extends object> {
-  queryData: () => Promise<Array<D>>;
+  queryData: (filters: Filters<D>) => Promise<Array<any>>;
   labels: ColumnLabels<D>
-  cols: { [K in keyof object]: Column<D> },
+  cols: { [K in keyof object]: Column },
 }
 
-export interface State<D extends object> {
-  data: Array<D>
+export interface State {
+  data: Array<any>
 }
 
-const DataGridHeader = <D extends object>({ namedCols, labels }: { labels: ColumnLabels<D>, namedCols: [keyof D, Column<D>][] }) =>
+const DataGridHeader = <D extends object>({ namedCols, labels }: { labels: ColumnLabels<D>, namedCols: [keyof D, Column][] }) =>
   <thead>
     <tr>
       {
@@ -47,14 +47,14 @@ const DataGridHeader = <D extends object>({ namedCols, labels }: { labels: Colum
     }
   </thead>
 
-const DataGridBody = <D extends object>({ data, namedCols }: { data: D[], namedCols: [keyof D, Column<D>][] }) =>
+const DataGridBody = <D extends object>({ data, namedCols }: { data: Array<any>, namedCols: [keyof D, Column][] }) =>
   <tbody>
     {
       data.map((row, index) =>
         <tr key={index}>
           {
             namedCols.map(([name, col], index) =>
-              <td key={index}>{col.renderCell(row, name)}</td>
+              <td key={index}>{col.renderCell(row, name.toString())}</td>
             )
           }
         </tr>
@@ -62,7 +62,7 @@ const DataGridBody = <D extends object>({ data, namedCols }: { data: D[], namedC
     }
   </tbody>
 
-class DataGrid<D extends object> extends React.Component<Props<D>, State<D>> {
+class DataGrid<D extends object> extends React.Component<Props<D>, State> {
 
   constructor(props: Props<D>) {
     super(props);
@@ -74,7 +74,7 @@ class DataGrid<D extends object> extends React.Component<Props<D>, State<D>> {
   render = () => {
     const { cols, labels } = this.props;
     const { data } = this.state;
-    const namedCols = Object.entries(cols) as [keyof D, Column<D>][];
+    const namedCols = Object.entries(cols) as [keyof D, Column][];
 
     return (
       <table>
@@ -86,7 +86,7 @@ class DataGrid<D extends object> extends React.Component<Props<D>, State<D>> {
 
   componentDidMount = () => {
     const { queryData } = this.props;
-    queryData().then(data => this.setState({ data }));
+    queryData({} as Filters<D>).then(data => this.setState({ data }));
   }
 }
 

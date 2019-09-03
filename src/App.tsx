@@ -12,11 +12,13 @@ const App: React.FC = () => {
     extra: new Column()
   }
 
+  type ColsFilters = Filters<typeof cols>;
+
 
   const elephantCols = {
     name: new Column(true),
     affiliation: new Column(false),
-    // dob: new NumberColumn(),
+    dob: new NumberColumn(),
     // species: new Column(),
     // image: new ImageColumn()
   }
@@ -35,7 +37,7 @@ const App: React.FC = () => {
   const elephantLabels: ElephantLabels = {
     name: "Vardas",
     affiliation: "Apsistojęs",
-    // dob: "Gimimo metai",
+    dob: "Gimimo metai",
     // species: "Rūšis",
     // image: "Nuotrauka"
   }
@@ -61,7 +63,7 @@ const App: React.FC = () => {
     );
   }
 
-  const queryData = () => {
+  const queryData = (filters: ColsFilters) => {
     const data = [
       { name: "a1", count: 1, extra: "Global" },
       { name: "qaz", count: 2, extra: "empire" },

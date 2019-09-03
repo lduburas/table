@@ -27,7 +27,7 @@ export class NumberFilter extends Filter<number> {
   
 }
 
-export class Column<D, FF extends Filter<F> | false = false, F extends (FilterType) = string, T = string> {
+export class Column<FF extends Filter<F> | false = false, F extends (FilterType) = string, T = string> {
 
   readonly filter: FF;
 
@@ -41,7 +41,7 @@ export class Column<D, FF extends Filter<F> | false = false, F extends (FilterTy
   renderHeader = (label: string): React.ReactNode =>
     <div style={{ textAlign: this.textAlign }}>{label}</div>
 
-  renderCell = (rowValue: D, name: keyof D): React.ReactNode =>
+  renderCell = (rowValue: any, name: string): React.ReactNode =>
     <div style={{ textAlign: this.textAlign }}>{this.renderValue(rowValue[name])}</div>
 
   renderValue = (columnValue: any): React.ReactNode =>
@@ -58,7 +58,7 @@ export class Column<D, FF extends Filter<F> | false = false, F extends (FilterTy
 
 }
 
-export class NumberColumn<D, FF extends Filter<F> | false = false, F extends FilterType = number> extends Column<D, FF, F, number> {
+export class NumberColumn<FF extends Filter<F> | false = false, F extends FilterType = number> extends Column<FF, F, number> {
 
   constructor(filter: FF | boolean = false) {
     super(((filter instanceof Filter || filter === true) ? new NumberFilter() : false) as FF);
