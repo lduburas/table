@@ -69,7 +69,12 @@ const App: React.FC = () => {
       { name: "qaz", count: 2, extra: "empire" },
       { name: "zzz", count: 5, extra: "ego" }];
 
-    return Promise.all(data);
+      const r = { data, totals: {
+        count: 8,
+        extra: "e"
+      }}
+
+    return Promise.resolve(r);
   }
 
 

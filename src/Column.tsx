@@ -10,7 +10,7 @@ type Range<T extends Scalar> = {
 type FilterType = Scalar | Range<Scalar>;
 
 export class Filter<T extends FilterType = string> {
-  
+
   renderFilter = (): React.ReactNode =>
     <input type="text" />
 
@@ -24,7 +24,7 @@ export class NumberFilter extends Filter<number> {
     const numberValue = Number(value);
     return isNaN(numberValue) ? null : value;
   }
-  
+
 }
 
 export class Column<FF extends Filter<F> | false = false, F extends (FilterType) = string, T = string> {
@@ -47,8 +47,14 @@ export class Column<FF extends Filter<F> | false = false, F extends (FilterType)
   renderValue = (columnValue: any): React.ReactNode =>
     columnValue;
 
-  isFiltered = ():FF =>
-    this.filter 
+  renderTotal = (value: any, name: string): React.ReactNode =>
+    <div style={{ textAlign: this.textAlign, fontWeight: "bold" }}>{value[name]}</div>
+
+  hasTotal = (value: any, name: string): boolean =>
+    true && value[name]
+
+  isFiltered = (): FF =>
+    this.filter
 
   getFilter = (): Filter<F> => {
     if (this.filter instanceof Filter)

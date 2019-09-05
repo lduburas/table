@@ -15,15 +15,27 @@ export type Filters<Q extends any> = {
   [C in FiltersKeys<Q>]: ReturnType<ReturnType<Q[C]['getFilter']>['convert']>
 }
 
+type Totals<D> = {
+  [C in keyof D]?: any
+}
+
+export type Result<D> = {
+  data: Array<any>,
+  totals: Totals<D>
+} | Array<any>
+
+
+
 
 export interface Props<D extends object> {
-  queryData: (filters: Filters<D>) => Promise<Array<any>>;
+  queryData: (filters: Filters<D>) => Promise<Result<D>>;
   labels: ColumnLabels<D>
   cols: { [K in keyof object]: Column },
 }
 
-export interface State {
+export interface State<D> {
   data: Array<any>
+  totals?: Totals<D>
 }
 
 const DataGridHeader = <D extends object>({ namedCols, labels }: { labels: ColumnLabels<D>, namedCols: [keyof D, Column][] }) =>
@@ -47,7 +59,7 @@ const DataGridHeader = <D extends object>({ namedCols, labels }: { labels: Colum
     }
   </thead>
 
-const DataGridBody = <D extends object>({ data, namedCols }: { data: Array<any>, namedCols: [keyof D, Column][] }) =>
+const DataGridBody = <D extends object>({ data, totals, namedCols }: { data: Array<any>, totals?: Totals<D>, namedCols: [keyof D, Column][] }) =>
   <tbody>
     {
       data.map((row, index) =>
@@ -60,9 +72,19 @@ const DataGridBody = <D extends object>({ data, namedCols }: { data: Array<any>,
         </tr>
       )
     }
+    {
+      <tr>
+         {
+            totals && 
+            namedCols.map(([name, col], index) =>
+              <td key={index}>{col.hasTotal(totals, name.toString()) && col.renderTotal(totals, name.toString())}</td>
+            )
+          }
+      </tr>
+    }
   </tbody>
 
-class DataGrid<D extends object> extends React.Component<Props<D>, State> {
+class DataGrid<D extends object> extends React.Component<Props<D>, State<D>> {
 
   constructor(props: Props<D>) {
     super(props);
@@ -73,20 +95,23 @@ class DataGrid<D extends object> extends React.Component<Props<D>, State> {
 
   render = () => {
     const { cols, labels } = this.props;
-    const { data } = this.state;
+    const { data, totals } = this.state;
     const namedCols = Object.entries(cols) as [keyof D, Column][];
 
     return (
       <table>
         <DataGridHeader namedCols={namedCols} labels={labels} />
-        <DataGridBody namedCols={namedCols} data={data} />
+        <DataGridBody namedCols={namedCols} data={data} totals={totals}/>
       </table>
     );
   }
 
   componentDidMount = () => {
     const { queryData } = this.props;
-    queryData({} as Filters<D>).then(data => this.setState({ data }));
+    queryData({} as Filters<D>).then( data => {
+      const state = data instanceof Array ? {data} : { data: data.data, totals: data.totals };
+      this.setState(state);
+    });
   }
 }
 
